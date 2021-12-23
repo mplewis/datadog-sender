@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: datadog-sender
+  labels:
+    app: datadog-sender
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: datadog-sender
+  template:
+    metadata:
+      labels:
+        app: datadog-sender
+    spec:
+      containers:
+      - name: datadog-sender
+        image: mplewis/datadog-sender:latest
+        env:
+        # https://docs.datadoghq.com/agent/kubernetes/apm/?tab=helm#configure-your-application-pods-in-order-to-communicate-with-the-datadog-agent
+        - name: DD_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: DD_DOGSTATSD_PORT
+          value: '8125'
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: '1'
+            memory: 128Mi
